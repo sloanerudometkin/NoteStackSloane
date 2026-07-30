@@ -1,4 +1,5 @@
 import datetime
+from python.src.config.settings import build_note_file_path
 
 #1.1 define note data structure
 class Note:
@@ -81,7 +82,54 @@ def format_note_for_file(note):
     output = output + note.content
 
     return output
+
+#2.3 save note: use helper functions from note and config/settings
+def save_note(note):
+    if not is_valid_note(note):
+        raise ValueError("Invalid note")
+    else:
+        filename = generate_note_filename(note.title)
+        full_path = build_note_file_path(filename)
+        file_content = format_note_for_file(note)
+    with open (full_path, "w") as f:
+        f.write(file_content)
+    return filename
+
+#2.4 YAML parse header
+def parse_yaml_header(file_content):
+    if not file_content.startswith("---"): #make sure header opens with "---"
+        raise ValueError("Invalid note format: missing YAML header")
+
+    lines = file_content.split("\n") #split into lines and find where header closes
+
+    yaml_end_index = -1
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            yaml_end_index = i
+            break
+    if yaml_end_index == -1:
+        raise ValueError("Invalid note format: YAML header not closed")
+
+    yaml_lines = lines[1:yaml_end_index] #pull out and parse yaml lines into metadata
+
+    metadata = {}
+    for line in yaml_lines:
+        line = line.strip()
+        if ":" in line:
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip()
+            metadata[key] = value
+
+    content_lines = lines[yaml_end_index +1:] #everything after the closing "---" is the content
+    content = "\n".join(content_lines)
+    content = content.strip()
+
+    return metadata, content
+
     
+
+
 
     
 
