@@ -30,5 +30,22 @@ def validate_title(title):
         raise ValueError("Title too long (max 200 characters)")
     return True
 
+#2.1 generate unique note file name
+def sanitize_title(title):
+    """Sanitize the title: keep alphanumeric characters, replace spaces with dashes."""
+    safe_title = ""
+    for letter in title:
+        if letter.isalnum():
+            letter = letter.lower()
+            safe_title = safe_title + letter
+        elif letter == " ":
+            letter = "-"
+            safe_title = safe_title + letter
+    return safe_title
+
+    
+
+    
+
 
 
