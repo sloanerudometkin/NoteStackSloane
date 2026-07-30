@@ -127,11 +127,33 @@ def parse_yaml_header(file_content):
 
     return metadata, content
 
+#2.5 load note: opposite of save_note
+def load_note(filename):
+    full_path = build_note_file_path(filename) #build path using filename
+
+    if not full_path.exists(): #confirm file is actually there
+        raise ValueError("Note file not found: " + filename)
+
+    with open(full_path, "r") as f: #open and read the file content
+        file_content = f.read()
+
+    metadata, content = parse_yaml_header(file_content) #uses above function but unpacks two variable instead of packing them in
+
+    note = Note(metadata["title"], content) #built metadata dictionary in 2.4 parse_yaml_header
+    note.created_timestamp = datetime.datetime.fromisoformat(metadata["created"]) #does opposite of isoformat:turns string back into datetime object
+    note.modified_timestamp = datetime.datetime.fromisoformat(metadata["modified"])
+
+    if "author" in metadata: #checks whether optional key exists
+        note.author = metadata["author"]
+    if "status" in metadata:
+        note.status = metadata["status"]
+    if "priority" in metadata:
+        note.priority = int(metadata["priority"])
+    if "tags" in metadata:
+        tags_string = metadata["tags"]
+        tags_string = tags_string.strip("[]")
+        note.tags = [tag.strip() for tag in tags_string.split(",")]
+
+    return note
     
-
-
-
     
-
-
-
