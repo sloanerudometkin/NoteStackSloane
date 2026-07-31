@@ -200,6 +200,26 @@ def read_note_by_filename(filename):
     note = load_note(filename)
     display_note(note)
 
+#3.4 update note
+def update_note(filename, new_content=None, new_tags=None):
+    note = load_note(filename) #opens the file, parses the YAML header, and hands back a full Note object
+
+    if new_content is not None:
+        note.content = new_content
+    if new_tags is not None:
+        note.tags = new_tags
+
+    note.modified_timestamp = datetime.datetime.now()
+
+    full_path = build_note_file_path(filename) #turns a bare filename like "my-note.md" into the full path inside ~/.notes.
+    file_content = format_note_for_file(note)
+
+    with open(full_path, "w") as f: #overwrrite the file with updated stuff
+        f.write(file_content)
+
+    print(f"Note updated successfully: {filename}")
+    return filename
+
           
     
     
