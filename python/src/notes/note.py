@@ -220,6 +220,38 @@ def update_note(filename, new_content=None, new_tags=None):
     print(f"Note updated successfully: {filename}")
     return filename
 
+#3.5 delete note
+def delete_note(filename):
+    full_path = build_note_file_path(filename)
+
+    if not full_path.exists():
+        raise ValueError("Note not found: " + filename)
+
+    confirmation = input(f"Are you sure you want to delete '{filename}'? (yes/no): ")
+
+    if confirmation.strip().lower() == "yes":
+        full_path.unlink() #removes link from the directory
+        print(f"Note deleted successfully: {filename}")
+        return True
+    else:
+        print("Deletion cancelled.")
+        return False
+
+#4.1 search by keyword
+def search_notes_by_keyword(keyword):
+    all_note_files = list_all_notes()
+    matching_notes = []
+
+    for note_file in all_note_files:
+        note = load_note(note_file.name)
+
+        if keyword.lower() in note.title.lower():
+            matching_notes.append((note_file.name, note))
+        elif keyword.lower() in note.content.lower():
+            matching_notes.append((note_file.name, note))
+
+    return matching_notes
+
           
     
     
