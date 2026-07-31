@@ -252,6 +252,32 @@ def search_notes_by_keyword(keyword):
 
     return matching_notes
 
+#4.2 filter by tag
+def filter_notes_by_tag(tag):
+    all_note_files = list_all_notes() #grab every note (.md)
+    matching_notes = [] #prep an empty list to collect matches
+
+    for note_file in all_note_files: #walk every file and load it into a note object
+        note = load_note(note_file.name)
+        note_tags_lower = [t.lower() for t in note.tags]
+
+        if tag.lower() in note_tags_lower:
+            matching_notes.append((note_file.name, note))
+
+    return matching_notes
+
+#4.3 get all unique tags
+def get_all_tags():
+    all_note_files = list_all_notes()
+    all_tags = set() #creates an empty set
+
+    for note_file in all_note_files:
+        note = load_note(note_file.name)
+        for tag in note.tags:
+            all_tags.add(tag.lower()) #add is the same thing as append, but for sets
+
+    return sorted(all_tags) #sorted takes a new list alphabetically sorted
+
           
     
     

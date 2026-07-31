@@ -1,4 +1,4 @@
-from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, update_note, delete_note, search_notes_by_keyword
+from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, update_note, delete_note, search_notes_by_keyword, filter_notes_by_tag, get_all_tags
 
 #3.2 list all notes
 def test_list_all_notes_returns_a_list():
@@ -79,4 +79,47 @@ def test_search_is_case_insensitive():
 def test_search_returns_empty_list_for_no_match():
     results = search_notes_by_keyword("zzz_this_should_never_match_zzz")
     assert results == []
+
+#4.2 filter by tag
+def test_filter_finds_note_with_matching_tag():
+    create_note("Tagged Note One", "content here", tags=["urgent"])
+    results = filter_notes_by_tag("urgent")
+    titles = [note.title for filename, note in results]
+    assert "Tagged Note One" in titles
+
+def test_filter_is_case_insensitive():
+    create_note("Tagged Note Two", "content here", tags=["Urgent"])
+    results = filter_notes_by_tag("urgent")
+    titles = [note.title for filename, note in results]
+    assert "Tagged Note Two" in titles
+
+def test_filter_does_not_partial_match():
+    create_note("Tagged Note Three", "content here", tags=["course"])
+    results = filter_notes_by_tag("cours")
+    titles = [note.title for filename, note in results]
+    assert "Tagged Note Three" not in titles
+
+def test_filter_returns_empty_list_for_no_match():
+    results = filter_notes_by_tag("zzz_no_such_tag_zzz")
+    assert results == []
+
+#4.3 get all unique tags
+def test_get_all_tags_returns_list():
+    result = get_all_tags()
+    assert isinstance(result, list)
+
+def test_get_all_tags_includes_known_tag():
+    create_note("Tag Collection Note", "content here", tags=["dinosaurs"])
+    tags = get_all_tags()
+    assert "dinosaurs" in tags
+
+def test_get_all_tags_has_no_duplicates():
+    create_note("Dup Tag Note One", "content", tags=["shared"])
+    create_note("Dup Tag Note Two", "content", tags=["shared"])
+    tags = get_all_tags()
+    assert tags.count("shared") == 1
+
+def test_get_all_tags_is_sorted():
+    tags = get_all_tags()
+    assert tags == sorted(tags)
 
