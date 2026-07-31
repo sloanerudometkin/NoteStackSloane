@@ -174,5 +174,32 @@ def list_all_notes():
     note_files = list(notes_dir.glob("*.md")) #walks the directory and matches any filename that ends in .md
     note_files.sort(key=lambda f: f.stat().st_mtime, reverse=True) #run the sort function on each item, sort by timestamp
     return note_files
+
+#3.3 read specific note
+def display_note(note):
+    print("=" * 50)
+    print(note.title)
+    print("=" * 50)
+    print("")
+
+    print("Created: " + format_iso8601(note.created_timestamp))
+    print("Modified: " + format_iso8601(note.modified_timestamp))
+
+    if note.tags:
+        print("Tags: " + "[" + ", ".join(note.tags) + "]")
+
+    if note.author is not None:
+        print("Author: " + note.author)
+
+    print("")
+    print("-" * 50)
+    print(note.content)
+    print("-" * 50)
+
+def read_note_by_filename(filename):
+    note = load_note(filename)
+    display_note(note)
+
+          
     
     
