@@ -16,6 +16,7 @@ Usage:
   notes delete <filename>             Delete a note
   notes search <keyword>              Search notes by keyword
   notes tags                          List all tags
+  notes menu                          Launch interactive menu mode
   notes --help                        Show this help message
 
 Environment Variables:
@@ -180,6 +181,54 @@ def handle_tags_command(args):
         for tag in all_tags:
             print(f"  - {tag}")
 
+#interactive menu mode
+def display_menu():
+    """Print the numbered list of actions the user can choose from."""
+    print("\n=== Notes Manager ===")
+    print("1. Create a note")
+    print("2. List notes")
+    print("3. Read a note")
+    print("4. Update a note")
+    print("5. Delete a note")
+    print("6. Search notes")
+    print("7. List all tags")
+    print("8. Quit")
+
+
+def run_interactive_menu():
+    """Loop showing a menu of actions until the user chooses to quit."""
+    while True:
+        display_menu()
+        choice = input("Choose an option (1-8): ").strip()
+
+        if choice == "1":
+            handle_create_command([])
+        elif choice == "2":
+            tag = input("Filter by tag (press Enter to skip): ").strip()
+            if tag:
+                handle_list_command(["--tag", tag])
+            else:
+                handle_list_command([])
+        elif choice == "3":
+            filename = input("Enter filename: ").strip()
+            handle_read_command([filename])
+        elif choice == "4":
+            filename = input("Enter filename: ").strip()
+            handle_update_command([filename])
+        elif choice == "5":
+            filename = input("Enter filename: ").strip()
+            handle_delete_command([filename])
+        elif choice == "6":
+            keyword = input("Search for: ").strip()
+            handle_search_command([keyword])
+        elif choice == "7":
+            handle_tags_command([])
+        elif choice == "8":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please enter a number 1-8.")
+
 #made in 5.1
 def parse_command_line_arguments(args):
     """Look at the command-line arguments and run the matching command."""
@@ -204,13 +253,11 @@ def parse_command_line_arguments(args):
         handle_search_command(remaining_args)
     elif command == "tags":
         handle_tags_command(remaining_args)
+    elif command == "menu":
+        run_interactive_menu()
     else:
         print(f"Unknown command: {command}")
         print("Use --help for usage information")
-
-
-if __name__ == "__main__":
-    parse_command_line_arguments(sys.argv[1:])
 
 #5.6 create main entry point
 def main():
@@ -246,3 +293,6 @@ def get_validated_input(prompt, validator_function):
             return user_input
         else:
             print("Invalid input. Please try again.")
+
+if __name__ == "__main__":
+    main()
