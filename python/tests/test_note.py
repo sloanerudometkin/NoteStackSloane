@@ -1,4 +1,4 @@
-from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, update_note, delete_note, search_notes_by_keyword, filter_notes_by_tag, get_all_tags, safe_file_operation
+from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, load_note_safely, update_note, delete_note, search_notes_by_keyword, filter_notes_by_tag, get_all_tags, safe_file_operation
 
 #3.2 list all notes
 def test_list_all_notes_returns_a_list():
@@ -145,5 +145,69 @@ def test_safe_file_operation_catches_permission_error(capsys):
     captured = capsys.readouterr()
     assert result is None
     assert "Permission denied" in captured.out
-    
+
+#6.3 load note safely
+def test_load_note_safely_returns_none_for_missing_file(capsys):
+    result = load_note_safely("this-file-does-not-exist-xyz.md")
+    captured = capsys.readouterr()
+    assert result is None
+    assert "not found" in captured.out
+
+def test_load_note_safely_handles_missing_yaml_header(monkeypatch, capsys):
+    from python.src.config.settings import build_note_file_path
+
+    filename = "corrupted-test-note.md"
+    full_path = build_note_file_path(filename)
+    with open(full_path, "w") as f:
+        f.write("This file has no YAML header at all.")
+
+    try:
+        monkeypatch.setattr("builtins.input", lambda prompt="": "no")
+        result = load_note_safely(filename)
+        captured = capsys.readouterr()
+
+        assert result is None
+        assert "corrupted" in captured.out
+    finally:
+        full_path.unlink()
+
+def test_load_note_safely_shows_raw_content_when_requested(monkeypatch, capsys):
+    from python.src.config.settings import build_note_file_path
+
+    filename = "corrupted-view-test.md"
+    full_path = build_note_file_path(filename)
+    with open(full_path, "w") as f:
+        f.write("garbage content, no header here")
+
+    try:
+        monkeypatch.setattr("builtins.input", lambda prompt="": "yes")
+        result = load_note_safely(filename)
+        captured = capsys.readouterr()
+
+        assert result is None
+        assert "garbage content" in captured.out
+    finally:
+        full_path.unlink()
+
+def test_load_note_safely_catches_unexpected_errors(monkeypatch, capsys):
+    from python.src.config.settings import build_note_file_path
+
+    filename = "unexpected-error-test.md"
+    full_path = build_note_file_path(filename)
+    with open(full_path, "w") as f:
+        f.write("placeholder content")
+
+    try:
+        def broken_load_note(filename):
+            raise RuntimeError("something totally unexpected happened")
+
+        monkeypatch.setattr("python.src.notes.note.load_note", broken_load_note)
+
+        result = load_note_safely(filename)
+        captured = capsys.readouterr()
+
+        assert result is None
+        assert "something totally unexpected happened" in captured.out
+    finally:
+        full_path.unlink()
 

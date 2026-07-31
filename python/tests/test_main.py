@@ -4,6 +4,7 @@ from python.src.main import (
     extract_tag_filter_from_args, handle_list_command, display_notes_list,
     handle_read_command, handle_update_command, handle_delete_command,
     handle_search_command, display_search_results, handle_tags_command, main,
+    is_valid_tag,
 )
 from python.src.notes.note import create_note, load_note
 
@@ -203,3 +204,26 @@ def test_main_ensures_notes_directory_exists(monkeypatch):
     monkeypatch.setattr("sys.argv", ["main.py", "--help"])
     main()
     assert get_notes_home_directory().exists()
+
+#6.2 is valid tag
+#a normal tag should pass
+def test_is_valid_tag_accepts_normal_tag():
+    result = is_valid_tag("urgent")
+    assert result is True
+
+#a tag with a space should fail
+def test_is_valid_tag_rejects_tag_with_space():
+    result = is_valid_tag("my tag")
+    assert result is False
+
+#an empty space should fail
+def test_is_valid_tag_rejects_empty_tag():
+    result = is_valid_tag("")
+    assert result is False
+
+def test_extract_tags_from_args_filters_invalid_tags(capsys):
+    result = extract_tags_from_args(["--tags", "urgent,my tag,school"])
+    captured = capsys.readouterr()
+
+    assert result == ["urgent", "school"]
+    assert "Warning" in captured.out

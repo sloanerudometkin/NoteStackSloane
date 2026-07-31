@@ -172,6 +172,30 @@ def load_note(filename):
 
     return note
 
+#6.3 safely load a note, handling corrupted files
+def load_note_safely(filename):
+    full_path = build_note_file_path(filename)
+
+    if not full_path.exists():
+        print(f"Error: Note file not found: {filename}")
+        return None
+
+    try:
+        return load_note(filename)
+    except (ValueError, KeyError) as e:
+        print(f"Warning: File '{filename}' has corrupted YAML header")
+        response = input("Would you like to view the raw content? (yes/no): ")
+
+        if response.strip().lower() == "yes":
+            with open(full_path, "r") as f:
+                raw_content = f.read()
+            print(raw_content)
+
+        return None
+    except Exception as e:
+        print(f"Error loading note: {e}")
+        return None
+
 #CRUD OPERATIONS
 
 #3.1 Create Note

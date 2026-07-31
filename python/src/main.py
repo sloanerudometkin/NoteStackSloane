@@ -25,12 +25,21 @@ Environment Variables:
 
 #5.3 handle create commands
 def extract_tags_from_args(args):
-    """Look for a --tags flag in args and return its value as a list of tags."""
+    """Look for a --tags flag in args and return its value as a list of valid tags."""
     if "--tags" in args:
         flag_index = args.index("--tags")
         if flag_index + 1 < len(args):
             tags_string = args[flag_index + 1]
-            return [t.strip() for t in tags_string.split(",")]
+            raw_tags = [t.strip() for t in tags_string.split(",")]
+
+            valid_tags = []
+            for tag in raw_tags:
+                if is_valid_tag(tag):
+                    valid_tags.append(tag)
+                else:
+                    print(f"Warning: skipping invalid tag '{tag}'")
+
+            return valid_tags
     return []
 
 def read_multiline_input():
