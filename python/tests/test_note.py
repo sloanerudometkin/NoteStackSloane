@@ -1,4 +1,4 @@
-from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, update_note, delete_note, search_notes_by_keyword, filter_notes_by_tag, get_all_tags
+from python.src.notes.note import list_all_notes, Note, display_note, read_note_by_filename, create_note, load_note, update_note, delete_note, search_notes_by_keyword, filter_notes_by_tag, get_all_tags, safe_file_operation
 
 #3.2 list all notes
 def test_list_all_notes_returns_a_list():
@@ -122,4 +122,28 @@ def test_get_all_tags_has_no_duplicates():
 def test_get_all_tags_is_sorted():
     tags = get_all_tags()
     assert tags == sorted(tags)
+
+#6.1 safe file operation
+def test_safe_file_operation_returns_value_on_success():
+    result = safe_file_operation(lambda: 42)
+    assert result == 42
+
+def test_safe_file_operation_catches_file_not_found(capsys):
+    def raise_not_found():
+        raise FileNotFoundError("no such file")
+
+    result = safe_file_operation(raise_not_found)
+    captured = capsys.readouterr()
+    assert result is None
+    assert "File not found" in captured.out
+
+def test_safe_file_operation_catches_permission_error(capsys):
+    def raise_permission():
+        raise PermissionError("locked")
+
+    result = safe_file_operation(raise_permission)
+    captured = capsys.readouterr()
+    assert result is None
+    assert "Permission denied" in captured.out
+    
 

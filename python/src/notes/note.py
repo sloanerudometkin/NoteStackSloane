@@ -2,6 +2,21 @@ import datetime
 from python.src.config.settings import build_note_file_path
 from python.src.config.settings import get_absolute_path_to_notes_home
 
+#6.1 handle file system errors
+def safe_file_operation(operation_function):
+    """Run operation_function and catch common file system errors."""
+    try:
+        return operation_function()
+    except FileNotFoundError:
+        print("Error: File not found")
+        return None
+    except PermissionError:
+        print("Error: Permission denied. Check file permissions.")
+        return None
+    except IOError as e:
+        print(f"Error: Failed to access file - {e}")
+        return None
+
 #1.1 define note data structure
 class Note:
     """represents a single note with content and metadata"""
