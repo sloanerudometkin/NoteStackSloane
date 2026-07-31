@@ -1,5 +1,6 @@
 import datetime
 from python.src.config.settings import build_note_file_path
+from python.src.config.settings import get_absolute_path_to_notes_home
 
 #1.1 define note data structure
 class Note:
@@ -156,6 +157,8 @@ def load_note(filename):
 
     return note
 
+#CRUD OPERATIONS
+
 #3.1 Create Note
 def create_note(title, content, tags=None):
     note = Note(title, content)
@@ -164,5 +167,12 @@ def create_note(title, content, tags=None):
     filename = save_note(note)
     print(f"Note created successfully: {filename}")
     return filename
+
+#3.2 list all notes
+def list_all_notes():
+    notes_dir = get_absolute_path_to_notes_home() #created in utilities/settings, hands back path pointing to .notes
+    note_files = list(notes_dir.glob("*.md")) #walks the directory and matches any filename that ends in .md
+    note_files.sort(key=lambda f: f.stat().st_mtime, reverse=True) #run the sort function on each item, sort by timestamp
+    return note_files
     
     
