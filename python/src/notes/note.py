@@ -155,5 +155,14 @@ def load_note(filename):
         note.tags = [tag.strip() for tag in tags_string.split(",")]
 
     return note
+
+#3.1 Create Note
+def create_note(title, content, tags=None):
+    note = Note(title, content)
+    if tags is not None:
+        note.tags = tags
+    filename = save_note(note)
+    print(f"Note created successfully: {filename}")
+    return filename
     
     
