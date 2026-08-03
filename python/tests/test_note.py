@@ -211,3 +211,45 @@ def test_load_note_safely_catches_unexpected_errors(monkeypatch, capsys):
     finally:
         full_path.unlink()
 
+#when creating a note, prompt user for optional fields
+def test_create_note_stores_author_status_priority():
+    filename = create_note(
+        "Metadata Test Note",
+        "some content",
+        author="Sloane",
+        status="draft",
+        priority=3
+    )
+    loaded = load_note(filename)
+    assert loaded.author == "Sloane"
+    assert loaded.status == "draft"
+    assert loaded.priority == 3
+
+#make sure when creating a note, the user is prompted for tags
+def test_handle_create_command_prompts_for_tags_in_menu_mode(monkeypatch, capsys):
+    responses = iter([
+        "Tag Prompt Note",   # title
+        "some content",       # content
+        "",                    # Ctrl+D signal handled separately below
+    ])
+    # content needs EOFError, so simulate that separately:
+    inputs = iter(["Tag Prompt Note"])
+    content_lines = iter(["some content"])
+    tag_response = iter(["urgent, school"])
+    skip_rest = iter(["", "", ""])  # author, status, priority
+
+    def fake_input(prompt=""):
+        if "title" in prompt.lower():
+            return next(inputs)
+        if "Tags" in prompt:
+            return next(tag_response)
+        try:
+            return next(skip_rest)
+        except StopIteration:
+            raise EOFError()
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    handle_create_command([])
+
+    captured = capsys.readouterr()
+    assert "Note created" in captured.out

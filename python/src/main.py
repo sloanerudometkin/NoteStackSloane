@@ -54,7 +54,6 @@ def read_multiline_input():
         pass
     return "\n".join(lines)
 
-
 def handle_create_command(args):
     """Prompt the user for a title and content, then create the note."""
     tags = extract_tags_from_args(args)
@@ -64,9 +63,20 @@ def handle_create_command(args):
     print("Enter note content (press Ctrl+D when done):")
     content = read_multiline_input()
 
-    filename = note.create_note(title, content, tags)
-    print(f"Note created: {filename}")
+    if not tags:
+        tags_input = input("Tags, comma-separated (press Enter to skip): ").strip()
+        if tags_input:
+            raw_tags = [t.strip() for t in tags_input.split(",")]
+            tags = [t for t in raw_tags if is_valid_tag(t)]
 
+    author = input("Author (press Enter to skip): ").strip() or None
+    status = input("Status (press Enter to skip): ").strip() or None
+    priority_input = input("Priority 1-5 (press Enter to skip): ").strip()
+    priority = int(priority_input) if priority_input else None
+
+    filename = note.create_note(title, content, tags, author=author, status=status, priority=priority)
+    print(f"Note created: {filename}")
+    
 #5.4
 def extract_tag_filter_from_args(args):
     """Look for a --tag flag in args and return its value, or None if absent."""

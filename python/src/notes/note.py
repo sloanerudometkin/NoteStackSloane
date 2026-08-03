@@ -199,10 +199,16 @@ def load_note_safely(filename):
 #CRUD OPERATIONS
 
 #3.1 Create Note
-def create_note(title, content, tags=None):
+def create_note(title, content, tags=None, author=None, status=None, priority=None):
     note = Note(title, content)
     if tags is not None:
         note.tags = tags
+    if author is not None:
+        note.author = author
+    if status is not None:
+        note.status = status
+    if priority is not None:
+        note.priority = priority
     filename = save_note(note)
     print(f"Note created successfully: {filename}")
     return filename
